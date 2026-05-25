@@ -25,7 +25,7 @@ class DataIngestion:
         except Exception as e:
             raise CustomException(e, sys)
     
-    def export_collection_as_dataframe(self):
+    def import_collection_as_dataframe(self):
         #Read data from mongodb
         try:
             db_name = self.data_ingestion_config.database_name
@@ -43,7 +43,7 @@ class DataIngestion:
         
     def export_data_into_feature_store(self, df:pd.DataFrame):
         try:
-            feature_store_file_path = self.data_ingestion_config.feature_stor_file_path
+            feature_store_file_path = self.data_ingestion_config.feature_store_file_path
             dir_path = os.path.dirname(feature_store_file_path)
             os.makedirs(dir_path, exist_ok=True)
             df.to_csv(feature_store_file_path, index=False, header= True)
@@ -68,7 +68,7 @@ class DataIngestion:
 
     def initiate_data_ingestion(self):
         try:
-            df = self.export_collection_as_dataframe()
+            df = self.import_collection_as_dataframe()
             df = self.export_data_into_feature_store(df)
             self.split_data_as_train_test(df)
             data_ingestion_artifact = DataIngestionArtifact(trained_file_path=self.data_ingestion_config.training_file_path, test_file_path=self.data_ingestion_config.testing_file_path)
