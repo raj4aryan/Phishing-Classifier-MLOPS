@@ -11,6 +11,9 @@ PREPROCESSING_OBJECT_FILE_NAME: str = "preprocessor.pkl"
 
 SCHEMA_FILE_PATH = os.path.join("data_schema", "schema.yaml")
 
+SAVED_MODEL_DIR:str = "saved_models"
+MODEL_FILE_NAME: str = "model.pkl"
+
 # Data Ingestion
 DATA_INGESTION_COLLECTION_NAME: str = "NetworkData"
 DATA_INGESTION_DATABASE_NAME: str = "MLDB"
@@ -37,3 +40,10 @@ DATA_TRANSFORMATION_IMPUTE_PARAMS: dict = {
     "n_neighbors": 3,
     "weights": "uniform"
 }
+
+# Model Training
+MODEL_TRAINER_PATH: str = "trained_model"
+MODEL_TRAINER_FILE_NAME: str = "networkSecurityModel.pkl"
+MODEL_TRAINER_EXPECTED_ACCURACY: float = 0.86
+MODEL_TRAINER_OVERFITTING_UNDERFITTING_THRESHOLD: float = 0.05
+

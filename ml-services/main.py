@@ -1,12 +1,15 @@
+import sys
 from networkSecurity.exceptions.exceptions import CustomException
 from networkSecurity.logging.logger import logging
-from networkSecurity.entity.config_entity import DataIngestionConfig, DataValidationConfig, DataTransformationConfig
+
+from networkSecurity.entity.config_entity import DataIngestionConfig, DataValidationConfig, DataTransformationConfig, ModelTrainerConfig
+
 from networkSecurity.entity.config_entity import TrainingPipelineConfig
-import sys
 
 from networkSecurity.components.data_ingestion import DataIngestion
 from networkSecurity.components.data_validation import DataValidation
 from networkSecurity.components.data_transformation import DataTransformation
+from networkSecurity.components.model_trainer import ModelTrainer
 
 if __name__ == "__main__":
     try:
@@ -32,6 +35,13 @@ if __name__ == "__main__":
         data_transformation_artifact = data_transformation.initiate_data_transformation()
         print("\nData Tranfomation o/p: ",data_transformation_artifact)
         logging.info("Data Transformation Completed")
+
+        # Model Training
+        model_trainer_config = ModelTrainerConfig(training_pipeline_config=training_pipeline_config)
+        model_trainer = ModelTrainer(model_trainer_config=model_trainer_config, data_transformation_artifact=data_transformation_artifact)
+        model_trainer_artifact = model_trainer.initiate_model_training()
+        print("\nModel Trainer o/p: ",model_trainer_artifact)
+        logging.info("Model Training Completed")
 
     except Exception as e:
         raise CustomException(e, sys)
