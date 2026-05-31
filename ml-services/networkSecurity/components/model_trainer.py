@@ -18,6 +18,11 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn.model_selection import GridSearchCV
 
+import mlflow
+import dagshub
+dagshub.init(repo_owner='raj8aryan4tuity', repo_name='Phishing-Classifier-MLOPS', mlflow=True)
+
+
 class ModelTrainer:
     def __init__(self, data_transformation_artifact: DataTransformationArtifact, model_trainer_config: ModelTrainerConfig):
         try:
@@ -25,6 +30,19 @@ class ModelTrainer:
             self.model_trainer_config = model_trainer_config
         except Exception as e:
             raise CustomException(e, sys)
+        
+    def track_mlflow(self, best_model, classificationMetric):
+        with mlflow.start_run():
+            f1_score = classificationMetric.f1_score
+            precision_score = classificationMetric.precision_score
+            recall_score = classificationMetric.recall_score
+
+            mlflow.log_metric("f1_score",f1_score)
+            mlflow.log_metric("precision_score",precision_score)
+            mlflow.log_metric("recall_score",recall_score)
+
+            mlflow.sklearn.log_model(best_model, name="model")
+
         
     def train_model(self, X_train, y_train, X_test, y_test):
         models = {
@@ -106,10 +124,21 @@ class ModelTrainer:
             test_metric_artifact=classification_test_metric
         )
 
+        #saving the final_models / model pusher
+        save_object("models/model.pkl", best_model)
+        save_object("models/preprocessor.pkl", preprocessor)
+
+        ## Track the experiments with mlflow
+        # train
+        self.track_mlflow(best_model=best_model, classificationMetric=classification_train_metric)
+
+        # test
+        self.track_mlflow(best_model=best_model, classificationMetric=classification_test_metric)
+
+        logging.info(f"Best Model: {best_model_name}\nTrain Classification Report:\n{classification_train_metric}")
+        logging.info(f"Best Model: {best_model_name}\nTest Classification Report:\n{classification_test_metric}")
+
         return model_tainer_artifact
-
-        ## Track the mlflow
-
 
 
 

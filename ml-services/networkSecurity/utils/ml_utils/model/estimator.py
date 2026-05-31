@@ -15,7 +15,9 @@ class NetworkModel:
         try: 
             x_transform = self.preprocessor.transform(x)
             y_hat = self.model.predict(x_transform)
-            return y_hat
+            probabilities = self.model.predict_proba(x_transform)
+            confidence_scores = probabilities.max(axis=1)
+            return y_hat, confidence_scores
         
         except Exception as e:
             raise CustomException(e, sys)
