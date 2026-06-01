@@ -54,28 +54,41 @@ async def train_route():
         raise CustomException(e, sys)
     
 @app.post("/predict")
-async def predict_route(request:Request, file:UploadFile=File(...)):
+async def predict_route(
+    request: Request,
+    file: UploadFile = File(...)
+):
     try:
         df = pd.read_csv(file.file)
-        networkModel = NetworkModel(preprocessor=preprocessor, model= model)
-        y_pred, confidence_score = networkModel.predict(df)
-        df["predicted_output"] = y_pred
-        df["confidence_score"] = confidence_score
-        df["prediction_label"] = df["predicted_output"].map({
-            0: "Phishing",
-            1: "Legitimate"
-        })
-        
+        networkModel = NetworkModel(
+            preprocessor=preprocessor,
+            model=model
+        )
+        y_pred, confidence_scores = networkModel.predict(df)
+        results = []
+        for pred, confidence in zip(y_pred, confidence_scores):
+            results.append({
+                "prediction": (
+                    "Legitimate"
+                    if int(pred) == 1
+                    else "Phishing"
+                ),
+                "confidence": (confidence*100).round(2)
+            })
 
-        return {"prediction": df.to_dict(orient="records")}
-    
-    
+        legitimate_count = sum(y_pred)
+        phishing_count = len(y_pred) - legitimate_count
+
+        return {
+            "total_records": len(results),
+            "legitimate_count": int(legitimate_count),
+            "phishing_count": int(phishing_count),
+            "results": results
+        }
+
     except Exception as e:
         raise CustomException(e, sys)
     
-
-
-
 
 if __name__ == "__main__":
     app_run(app, host = "0.0.0.0", port=8000)
