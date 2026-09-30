@@ -4,7 +4,7 @@ pandas
 pymongo
 certifi
 pymongo[srv]
-scikit-learn
+scikit-learn==1.8.0
 dill
 pyaml
 mlflow
@@ -12,5 +12,5 @@ dagshub
 fastapi
 uvicorn
 setuptools
-
+python-multipart
 # -e .
